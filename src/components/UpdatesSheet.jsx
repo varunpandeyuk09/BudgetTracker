@@ -4,6 +4,15 @@ import { UPDATES } from '../updates.js'
 
 export default function UpdatesSheet({ onClose }) {
   useEffect(() => {
+    // lock background scroll while the sheet is open
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [])
+
+  useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onClose()
     }

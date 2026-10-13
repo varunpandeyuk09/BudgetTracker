@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Icon from './Icon.jsx'
 import { PALETTE, db, setSetting } from '../db.js'
 import { useCategories, useSettings } from '../hooks.js'
@@ -14,6 +14,15 @@ export default function SettingsTab({ onClose, onOpenUpdates }) {
   const fileRef = useRef(null)
   const budgetRef = useRef(null)
   const [msg, setMsg] = useState('')
+
+  useEffect(() => {
+    // lock background scroll while settings overlay is open
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [])
 
   const flash = (text) => {
     setMsg(text)
