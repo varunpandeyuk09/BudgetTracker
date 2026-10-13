@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import Icon from './Icon.jsx'
 import { PALETTE, db, setSetting } from '../db.js'
 import { useCategories, useSettings } from '../hooks.js'
 import { useInstallPrompt } from '../pwa.js'
@@ -6,7 +7,7 @@ import { exportBackup, importBackup, resetAllData } from '../utils/backup.js'
 
 const CURRENCIES = ['₹', '$', '€', '£', '¥']
 
-export default function SettingsTab() {
+export default function SettingsTab({ onClose, onOpenUpdates }) {
   const settings = useSettings()
   const cats = useCategories() || []
   const { canInstall, install } = useInstallPrompt()
@@ -32,27 +33,14 @@ export default function SettingsTab() {
           <span className="eyebrow">Preferences</span>
           <h2>Settings</h2>
         </div>
+        {onClose && (
+          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close settings">
+            <Icon name="close" size={18} />
+          </button>
+        )}
       </header>
 
       {msg && <div className="inline-alert">{msg}</div>}
-
-      <section className="card">
-        <div className="card-head">
-          <h3>Appearance</h3>
-        </div>
-        <div className="segmented">
-          {['dark', 'light'].map((t) => (
-            <button
-              key={t}
-              type="button"
-              className={settings.theme === t ? 'active' : ''}
-              onClick={() => setSetting('theme', t)}
-            >
-              {t === 'dark' ? '🌙 Dark' : '☀️ Light'}
-            </button>
-          ))}
-        </div>
-      </section>
 
       <section className="card">
         <div className="card-head">
@@ -159,6 +147,11 @@ export default function SettingsTab() {
           <span className="muted">v1.0.0</span>
         </div>
         <div className="btn-col">
+          {onOpenUpdates && (
+            <button type="button" className="btn btn-outline" onClick={onOpenUpdates}>
+              🔔 What&apos;s new
+            </button>
+          )}
           {canInstall ? (
             <button type="button" className="btn btn-primary" onClick={() => install()}>
               📲 Install app on phone

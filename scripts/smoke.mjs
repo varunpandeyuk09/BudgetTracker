@@ -28,9 +28,23 @@ await page.waitForSelector('.app', { timeout: 15000 })
 
 check('app renders empty state', await page.getByText('No transactions yet').isVisible())
 check(
-  'bottom nav has 4 tabs + fab',
-  (await page.locator('.tabbar .tab').count()) === 4 && (await page.locator('.fab').count()) === 1,
+  'top nav has icons + fab',
+  (await page.locator('.top-nav .icon-btn').count()) >= 4 && (await page.locator('.fab').count()) === 1,
 )
+check('theme toggle is left of logo', await page.evaluate(() => {
+  const theme = document.querySelector('.top-nav > .icon-btn')
+  const brand = document.querySelector('.top-nav .brand-btn')
+  return Boolean(theme && brand && theme.compareDocumentPosition(brand) & Node.DOCUMENT_POSITION_FOLLOWING)
+}))
+check('updates bell visible', await page.getByLabel("What's new").isVisible())
+check('badge dot for unseen updates', await page.locator('.badge-dot').isVisible())
+
+// --- updates sheet ---
+await page.getByLabel("What's new").click()
+await page.waitForSelector('.update-sheet', { timeout: 5000 })
+check('updates sheet opens', (await page.locator('.update-row').count()) >= 1)
+await page.getByLabel('Close updates').click()
+await page.waitForSelector('.update-sheet', { state: 'detached' })
 
 // --- add a transaction ---
 await page.locator('.fab').click()
@@ -49,15 +63,15 @@ check('transaction row appears', (await page.locator('.txn-row').count()) >= 1)
 check('amount shows in summary', bodyAfterAdd.includes('1,500'))
 check('note appears', bodyAfterAdd.includes('Smoke test entry'))
 
-// --- stats tab ---
-await page.locator('.tabbar .tab').nth(1).click()
+// --- stats via header ---
+await page.getByLabel('Stats').click()
 await page.waitForSelector('.kpi-grid', { timeout: 5000 })
 check('stats KPIs visible', (await page.locator('.kpi').count()) === 3)
 const chartSvg = await page.locator('.chart-box svg').count()
 check('bar chart renders', chartSvg >= 1)
 
-// --- transactions tab + edit flow ---
-await page.locator('.tabbar .tab').nth(2).click()
+// --- transactions list via header + edit flow ---
+await page.getByLabel('Transactions').click()
 await page.waitForSelector('.day-group', { timeout: 5000 })
 check('grouped list shows day', await page.getByText('Today').isVisible())
 await page.locator('.txn-row').first().click()
@@ -66,11 +80,14 @@ check('edit sheet opens', await page.getByText('Edit transaction').isVisible())
 await page.locator('.sheet-head .icon-btn').click()
 await page.waitForSelector('.sheet', { state: 'detached' })
 
-// --- settings tab ---
-await page.locator('.tabbar .tab').nth(3).click()
+// --- settings via header ---
+await page.getByLabel('Settings').click()
 await page.waitForSelector('text=Data & backup', { timeout: 5000 })
 check('export button visible', await page.getByText('Export backup (JSON)').isVisible())
 check('budget field visible', await page.locator('#budget').isVisible())
+check('appearance section removed', (await page.locator('text=Appearance').count()) === 0)
+await page.getByLabel('Close settings').click()
+await page.waitForSelector('.settings-overlay', { state: 'detached' })
 
 // --- service worker ---
 const sw = await page.evaluate(async () => {
@@ -80,11 +97,14 @@ const sw = await page.evaluate(async () => {
 check('service worker registered', sw)
 
 // --- persistence across reload ---
-await page.locator('.tabbar .tab').nth(0).click()
 await page.reload({ waitUntil: 'networkidle' })
 await page.waitForSelector('.app', { timeout: 15000 })
 const bodyAfterReload = await page.innerText('body')
 check('data survives reload', bodyAfterReload.includes('Smoke test entry'))
+check(
+  'badge gone after seen',
+  (await page.locator('.badge-dot').count()) === 0,
+)
 
 await page.screenshot({ path: 'scripts/smoke-home.png', fullPage: true })
 

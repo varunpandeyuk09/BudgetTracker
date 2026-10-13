@@ -167,10 +167,9 @@ function Header({ month }) {
   return (
     <header className="page-head">
       <div>
-        <span className="eyebrow">Budget Tracker</span>
+        <span className="eyebrow">Overview</span>
         <h2>{monthLabel(month)}</h2>
       </div>
-      <span className="logo">₹</span>
     </header>
   )
 }
