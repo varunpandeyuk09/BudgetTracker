@@ -2,6 +2,19 @@
 // id unique honi chahiye — badge dot isi se hide hota hai (seen).
 export const UPDATES = [
   {
+    id: 'bt-v1.2-smart-categories',
+    date: '2026-10-14',
+    icon: 'list',
+    title: 'Smarter categories',
+    items: [
+      'New transaction me ab sirf 3 quick pills (Food, Groceries, Transport) + More dropdown — 30-40 pills ki jagah ek clean list.',
+      'Dropdown me upar Other — wahi purana flow, naam likho aur category add ho jayegi.',
+      'Custom category ka sahi icon ab khud lagta hai — Sweets 🍬, Clothing 👕, Coffee ☕ waghera.',
+      'Suggestions section — ek tap me common categories create ho jati hain.',
+      'Settings ka Categories section hata diya — sab kuch ab transaction form me.',
+    ],
+  },
+  {
     id: 'bt-v1.1-notifications',
     date: '2026-10-13',
     icon: 'bell',
