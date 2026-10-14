@@ -1,4 +1,5 @@
 import Dexie from 'dexie'
+import { guessEmoji } from './utils/emoji.js'
 
 export const db = new Dexie('budget-tracker')
 
@@ -37,6 +38,26 @@ export const DEFAULT_CATEGORIES = [
   { id: 113, name: 'Other', emoji: '➕', type: 'expense', color: '#94a3b8' },
 ]
 
+// Extra categories offered inside the New Transaction category dropdown.
+// Picking one creates it on the fly with a name-matched emoji.
+export const SUGGESTED_CATEGORIES = {
+  expense: [
+    'Sweets', 'Snacks', 'Coffee', 'Dining', 'Pizza', 'Biryani', 'Ice Cream',
+    'Clothing', 'Shoes', 'Jewellery', 'Salon',
+    'Fuel', 'Metro', 'Train', 'Parking',
+    'Electricity', 'Water', 'Internet', 'Phone Recharge',
+    'Medicine', 'Doctor', 'Gym', 'Insurance',
+    'Movie', 'Music', 'Games', 'Subscriptions',
+    'Books', 'Course', 'Hotel', 'Flight',
+    'Pet Food', 'Baby Care', 'Toys', 'Donation',
+    'Wedding', 'Fees', 'Loan', 'EMI', 'Furniture', 'Repairs', 'Sports',
+  ],
+  income: [
+    'Bonus', 'Commission', 'Interest', 'Dividend', 'Cashback',
+    'Rental Income', 'Tips', 'Pension', 'Overtime', 'Refund', 'Royalty',
+  ],
+}
+
 export const PALETTE = [
   '#fb7185', '#f59e0b', '#38bdf8', '#a78bfa', '#34d399',
   '#f472b6', '#60a5fa', '#2dd4bf', '#c084fc', '#facc15',
@@ -50,6 +71,14 @@ export async function ensureSeeded() {
   const have = new Set(existing.map((s) => s.key))
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
     if (!have.has(key)) await db.settings.put({ key, value })
+  }
+
+  // Older custom categories were saved with the generic 🏷️ tag — backfill a
+  // name-matched emoji for them.
+  const generic = await db.categories.filter((c) => c.emoji === '🏷️').toArray()
+  for (const c of generic) {
+    const emoji = guessEmoji(c.name)
+    if (emoji !== '🏷️') await db.categories.update(c.id, { emoji })
   }
 }
 

@@ -1040,11 +1040,6 @@ html[data-theme='light'] .card {
   gap: 8px;
 }
 
-.cat-grid.compact {
-  gap: 7px;
-  margin-bottom: 4px;
-}
-
 .cat-chip {
   display: inline-flex;
   align-items: center;
@@ -1064,24 +1059,36 @@ html[data-theme='light'] .card {
   color: var(--muted);
 }
 
-.cat-chip.static {
-  cursor: default;
-  padding-right: 28px;
-  position: relative;
+.cat-chip.add.active {
+  border-color: var(--hairline-strong);
+  color: var(--text);
 }
 
-.cat-remove {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
-  background: none;
+.cat-chip.other {
+  border-style: dashed;
   color: var(--muted);
-  font-size: 17px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 4px;
+}
+
+.cat-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-elev);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+}
+
+.cat-menu-label {
+  width: 100%;
+  margin: 6px 0 -1px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .inline-form {

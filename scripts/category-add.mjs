@@ -16,11 +16,17 @@ const check = (name, cond, detail = '') => {
   }
 }
 
-// The "New" chip toggles the inline form — it stays open after a failed add
-// but closes after a successful one, so only click when the input is hidden.
+// The "More" chip opens the category dropdown, whose first item is "Other" —
+// that opens the inline form. The form stays open after a failed add but
+// closes after a successful one, so only open it when the input is hidden.
 const openNewCat = async () => {
   const input = page.locator('.sheet .inline-form .input')
-  if ((await input.count()) === 0) await page.locator('.sheet .cat-chip.add').click()
+  if ((await input.count()) === 0) {
+    if ((await page.locator('.sheet .cat-menu').count()) === 0) {
+      await page.locator('.sheet .cat-chip.add').click()
+    }
+    await page.locator('.sheet .cat-menu .cat-chip.other').click()
+  }
   await input.waitFor({ state: 'visible', timeout: 3000 })
 }
 
@@ -67,27 +73,34 @@ check(
   (await page.locator('.txn-row', { hasText: 'Bonus' }).count()) > 0,
 )
 
-// ---- 3) add category from Settings overlay ----
-await page.locator('.top-nav button[aria-label="Settings"]').click()
-await page.waitForSelector('.settings-panel', { timeout: 5000 })
-await page.locator('.settings-panel input[placeholder="New category name"]').fill('Gym')
-await page.locator('.settings-panel .inline-form.wrap .btn-primary').click()
-await page.waitForTimeout(700)
+// ---- 3) quick pills + dropdown are shown instead of every category ----
+await page.locator('.fab').click()
+await page.waitForSelector('.sheet', { timeout: 5000 })
+await page.locator('.sheet .segmented button', { hasText: 'Expense' }).click()
+const pillCount = await page.locator('.sheet .cat-grid .cat-chip').count()
+check('sheet: only quick pills before More', pillCount <= 4, `(${pillCount} chips)`)
+await page.locator('.sheet .cat-chip.add').click()
+await page.waitForSelector('.sheet .cat-menu', { timeout: 3000 })
 check(
-  'settings: category "Gym" added',
-  (await page.locator('.settings-panel .cat-grid.compact .cat-chip', { hasText: 'Gym' }).count()) > 0,
+  'sheet: dropdown lists remaining categories',
+  (await page.locator('.sheet .cat-menu .cat-chip').count()) > 3,
+)
+check(
+  'sheet: dropdown has Other first',
+  (await page.locator('.sheet .cat-menu .cat-chip').first().getAttribute('class'))?.includes(
+    'other',
+  ) === true,
 )
 
-// ---- 4) delete still works ----
-const before = await page.locator('.settings-panel .cat-grid.compact .cat-chip').count()
-page.once('dialog', (d) => d.accept())
-await page
-  .locator('.settings-panel .cat-grid.compact .cat-chip', { hasText: 'Gym' })
-  .locator('.cat-remove')
-  .click()
-await page.waitForTimeout(500)
-const after = await page.locator('.settings-panel .cat-grid.compact .cat-chip').count()
-check('settings: category delete works', after === before - 1, `(${before} -> ${after})`)
+// ---- 4) Settings no longer duplicates the category section ----
+await page.locator('.sheet .icon-btn[aria-label="Close"]').click()
+await page.waitForSelector('.sheet', { state: 'detached', timeout: 5000 })
+await page.locator('.top-nav button[aria-label="Settings"]').click()
+await page.waitForSelector('.settings-panel', { timeout: 5000 })
+check(
+  'settings: categories section hidden',
+  (await page.locator('.settings-panel .cat-grid.compact').count()) === 0,
+)
 
 check('no console/page errors', errors.length === 0, JSON.stringify(errors, null, 2))
 
