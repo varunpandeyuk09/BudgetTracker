@@ -53,6 +53,13 @@ export async function ensureSeeded() {
   }
 }
 
+// The categories table's primary key (`id`) is not auto-increment, so every
+// insert must supply one — otherwise IndexedDB throws a DataError.
+export async function nextCategoryId() {
+  const keys = await db.categories.toCollection().primaryKeys()
+  return keys.reduce((max, k) => (typeof k === 'number' && k > max ? k : max), 0) + 1
+}
+
 export async function getSetting(key) {
   const row = await db.settings.get(key)
   return row ? row.value : DEFAULT_SETTINGS[key]

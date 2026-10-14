@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from './Icon.jsx'
-import { PALETTE, db, setSetting } from '../db.js'
+import { PALETTE, db, nextCategoryId, setSetting } from '../db.js'
 import { useCategories, useSettings } from '../hooks.js'
 import { useInstallPrompt } from '../pwa.js'
 import { exportBackup, importBackup, resetAllData } from '../utils/backup.js'
@@ -109,7 +109,7 @@ export default function SettingsTab({ onClose, onOpenUpdates }) {
             <CatChip key={c.id} cat={c} />
           ))}
         </div>
-        <AddCategory />
+        <AddCategory onAdded={() => flash('Category added.')} />
       </section>
 
       <section className="card">
@@ -200,34 +200,55 @@ function CatChip({ cat }) {
   )
 }
 
-function AddCategory() {
+function AddCategory({ onAdded }) {
   const [name, setName] = useState('')
   const [type, setType] = useState('expense')
+  const [error, setError] = useState('')
 
   const add = async () => {
     const n = name.trim()
     if (!n) return
-    const color = PALETTE[(await db.categories.count()) % PALETTE.length]
-    await db.categories.add({ name: n, emoji: '🏷️', type, color })
-    setName('')
+    setError('')
+    try {
+      const exists = await db.categories
+        .filter((c) => c.type === type && c.name.toLowerCase() === n.toLowerCase())
+        .count()
+      if (exists) {
+        setError('That category already exists.')
+        return
+      }
+      const color = PALETTE[(await db.categories.count()) % PALETTE.length]
+      const id = await nextCategoryId()
+      await db.categories.add({ id, name: n, emoji: '🏷️', type, color })
+      setName('')
+      onAdded?.()
+    } catch {
+      setError('Could not add the category. Please try again.')
+    }
   }
 
   return (
-    <div className="inline-form wrap">
-      <input
-        className="input grow"
-        placeholder="New category name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && add()}
-      />
-      <select className="select" value={type} onChange={(e) => setType(e.target.value)}>
-        <option value="expense">Expense</option>
-        <option value="income">Income</option>
-      </select>
-      <button type="button" className="btn btn-primary btn-sm" onClick={add}>
-        Add
-      </button>
-    </div>
+    <>
+      <div className="inline-form wrap">
+        <input
+          className="input grow"
+          placeholder="New category name"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value)
+            setError('')
+          }}
+          onKeyDown={(e) => e.key === 'Enter' && add()}
+        />
+        <select className="select" value={type} onChange={(e) => setType(e.target.value)}>
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+        </select>
+        <button type="button" className="btn btn-primary btn-sm" onClick={add}>
+          Add
+        </button>
+      </div>
+      {error && <p className="error">{error}</p>}
+    </>
   )
 }

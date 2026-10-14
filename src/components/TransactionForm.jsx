@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from './Icon.jsx'
-import { PALETTE, db } from '../db.js'
+import { PALETTE, db, nextCategoryId } from '../db.js'
 import { useCategories, useSettings } from '../hooks.js'
 import { todayISO } from '../utils/format.js'
 
@@ -51,12 +51,21 @@ export default function TransactionForm({ txn, onClose }) {
   const addCategory = async () => {
     const name = newCat.trim()
     if (!name) return
-    const color = PALETTE[(await db.categories.count()) % PALETTE.length]
-    await db.categories.add({ name, emoji: '🏷️', type, color })
-    setSelected({ name, emoji: '🏷️', color })
-    setNewCat('')
-    setAddingCat(false)
-    setError('')
+    if (cats.some((c) => c.name.toLowerCase() === name.toLowerCase())) {
+      setError('That category already exists.')
+      return
+    }
+    try {
+      const color = PALETTE[(await db.categories.count()) % PALETTE.length]
+      const id = await nextCategoryId()
+      await db.categories.add({ id, name, emoji: '🏷️', type, color })
+      setSelected({ name, emoji: '🏷️', color })
+      setNewCat('')
+      setAddingCat(false)
+      setError('')
+    } catch {
+      setError('Could not add the category. Please try again.')
+    }
   }
 
   return (
