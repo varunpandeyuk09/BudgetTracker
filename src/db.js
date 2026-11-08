@@ -13,6 +13,8 @@ export const DEFAULT_SETTINGS = {
   currency: '₹',
   monthlyBudget: 0,
   theme: 'dark',
+  // "Cover from savings" payments per month: { 'YYYY-MM': amount }
+  settlements: null,
 }
 
 export const DEFAULT_CATEGORIES = [

@@ -1,11 +1,16 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Donut, DonutLegend } from './Charts.jsx'
-import { useSettings, useTransactions } from '../hooks.js'
+import DailySpending from './DailySpending.jsx'
+import CarrySheet from './CarrySheet.jsx'
+import { useCarry, useSettings, useTransactions } from '../hooks.js'
+import { DAILY_BASE } from '../utils/budget.js'
 import { dayLabel, money, monthKey, monthLabel, todayISO } from '../utils/format.js'
 
 export default function Home({ onAdd, onEdit, onNavigate }) {
   const txns = useTransactions()
   const settings = useSettings()
+  const carry = useCarry()
+  const [carryOpen, setCarryOpen] = useState(false)
   const currency = settings.currency
   const cur = monthKey(todayISO())
 
@@ -36,8 +41,10 @@ export default function Home({ onAdd, onEdit, onNavigate }) {
   }, [txns, cur])
 
   const budget = Number(settings.monthlyBudget) || 0
-  const pct = budget > 0 ? Math.min(100, Math.round((data.expense / budget) * 100)) : 0
-  const left = budget - data.expense
+  const carryAmt = carry.amount || 0
+  const eff = budget > 0 ? Math.max(0, budget - carryAmt) : 0
+  const pct = eff > 0 ? Math.min(100, Math.round((data.expense / eff) * 100)) : 0
+  const left = eff - data.expense
 
   if (data.count === 0) {
     return (
@@ -79,11 +86,11 @@ export default function Home({ onAdd, onEdit, onNavigate }) {
       <section className="card">
         <div className="card-head">
           <h3>Monthly budget</h3>
-          {budget > 0 && (
+          {eff > 0 && (
             <span className={`badge ${left < 0 ? 'danger' : pct > 80 ? 'warn' : ''}`}>{pct}% used</span>
           )}
         </div>
-        {budget > 0 ? (
+        {eff > 0 ? (
           <>
             <div className="progress">
               <div
@@ -94,14 +101,30 @@ export default function Home({ onAdd, onEdit, onNavigate }) {
             <p className="hint">
               {left >= 0 ? (
                 <>
-                  <strong>{money(left, currency)}</strong> left of {money(budget, currency)}
+                  <strong>{money(left, currency)}</strong> left of {money(eff, currency)}
                 </>
               ) : (
                 <>
                   Over by <strong>{money(-left, currency)}</strong>
                 </>
               )}
+              {carryAmt > 0 && (
+                <>
+                  {' '}
+                  · incl. <strong>{money(carryAmt, currency)}</strong> carry from{' '}
+                  {monthLabel(carry.from || cur).split(' ')[0]}
+                </>
+              )}
             </p>
+            {carryAmt > 0 && (
+              <button
+                type="button"
+                className="link carry-link"
+                onClick={() => setCarryOpen(true)}
+              >
+                Manage carry →
+              </button>
+            )}
           </>
         ) : (
           <p className="hint">
@@ -113,6 +136,13 @@ export default function Home({ onAdd, onEdit, onNavigate }) {
           </p>
         )}
       </section>
+
+      <DailySpending
+        txns={txns}
+        month={cur}
+        target={eff > 0 ? eff / DAILY_BASE : 0}
+        currency={currency}
+      />
 
       {data.donut.length > 0 && (
         <section className="card">
@@ -159,6 +189,8 @@ export default function Home({ onAdd, onEdit, onNavigate }) {
           ))}
         </ul>
       </section>
+
+      {carryOpen && <CarrySheet onClose={() => setCarryOpen(false)} />}
     </>
   )
 }

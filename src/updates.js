@@ -2,6 +2,18 @@
 // id unique honi chahiye — badge dot isi se hide hota hai (seen).
 export const UPDATES = [
   {
+    id: 'bt-v1.3-daily-budget-report',
+    date: '2026-11-08',
+    icon: 'stats',
+    title: 'Daily spending & monthly budget report',
+    items: [
+      'Home pe naya Daily spending card — aaj ka kharcha, daily target (budget ÷ 30), avg/day aur month-end projection live update hota hai.',
+      '30-din base par daily bar chart — har din ka kharcha alag se, aaj ka highlight.',
+      'Stats pe Budget report — budget, effective budget (carry ke baad), over/under amount aur har mahine ka over-budget history alag list me.',
+      'Over-budget ab alag track hota hai — manage karo: savings se cover (full/partial) ya auto-recover (agle month ke budget se).',
+    ],
+  },
+  {
     id: 'bt-v1.2-smart-categories',
     date: '2026-10-14',
     icon: 'list',

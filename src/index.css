@@ -1176,6 +1176,176 @@ html[data-theme='light'] .card {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- daily spending ---------- */
+.daily-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.daily-amt {
+  font-size: 21px;
+  font-weight: 780;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.daily-amt small {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+
+.day-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 74px;
+  margin-top: 16px;
+}
+
+.day-bar {
+  flex: 1;
+  min-width: 3px;
+  border-radius: 4px 4px 2px 2px;
+  background: linear-gradient(180deg, #60a5fa, #38bdf8);
+  transition: height 0.35s ease;
+}
+
+.day-bar.today {
+  background: linear-gradient(180deg, #34d399, #10b981);
+}
+
+.day-bar.over {
+  background: linear-gradient(180deg, #fb7185, #f43f5e);
+}
+
+.day-bar.future {
+  background: var(--chip);
+}
+
+.day-axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.daily-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.daily-cell {
+  background: var(--chip);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.daily-cell span {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.daily-cell strong {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 750;
+  margin-top: 5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- monthly budget report ---------- */
+.report-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13.5px;
+}
+
+.report-row:last-of-type {
+  border-bottom: none;
+}
+
+.report-row .row-label {
+  color: var(--muted);
+}
+
+.report-row .row-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.report-history {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.report-history li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13.5px;
+}
+
+.report-history li:last-child {
+  border-bottom: none;
+}
+
+.report-history .row-label {
+  flex: 1;
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.report-history .row-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge.ghost {
+  background: var(--chip);
+  color: var(--muted);
+}
+
+.carry-link {
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.carry-hero {
+  text-align: center;
+  padding: 6px 0 4px;
+}
+
+.carry-hero strong {
+  display: block;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- transactions tab ---------- */
 .filters {
   padding: 13px;

@@ -37,6 +37,11 @@ export function shiftMonth(key, delta) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
+export function daysInMonth(key) {
+  const [y, m] = key.split('-').map(Number)
+  return new Date(y, m, 0).getDate()
+}
+
 export function dayLabel(date) {
   const today = todayISO()
   if (date === today) return 'Today'
