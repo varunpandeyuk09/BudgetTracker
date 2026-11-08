@@ -4,7 +4,7 @@ import DailySpending from './DailySpending.jsx'
 import CarrySheet from './CarrySheet.jsx'
 import { useCarry, useSettings, useTransactions } from '../hooks.js'
 import { DAILY_BASE } from '../utils/budget.js'
-import { dayLabel, money, monthKey, monthLabel, todayISO } from '../utils/format.js'
+import { dayLabel, money, monthKey, monthLabel, monthLabelShort, todayISO } from '../utils/format.js'
 
 export default function Home({ onAdd, onEdit, onNavigate }) {
   const txns = useTransactions()
@@ -67,17 +67,21 @@ export default function Home({ onAdd, onEdit, onNavigate }) {
       <Header month={cur} />
 
       <section className="card summary">
-        <span className="label">Total balance</span>
+        <span className="label">Total balance · all-time</span>
         <h1 className={`big-amount ${data.balance < 0 ? 'negative' : ''}`}>
           {money(data.balance, currency)}
         </h1>
+        <p className="hint">
+          Sab months ki income − expense ka lifetime total. Neeche ke chips sirf{' '}
+          <strong>{monthLabel(cur).split(' ')[0]}</strong> ke hain.
+        </p>
         <div className="summary-chips">
           <div className="chip income">
-            <span>Income</span>
+            <span>Income · {monthLabelShort(cur)}</span>
             <strong>{money(data.income, currency)}</strong>
           </div>
           <div className="chip expense">
-            <span>Expense</span>
+            <span>Expense · {monthLabelShort(cur)}</span>
             <strong>{money(data.expense, currency)}</strong>
           </div>
         </div>
